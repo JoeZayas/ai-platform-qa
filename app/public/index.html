@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>D&B Intelligence Platform - QA Demo</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #f5f5f5;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Authentication Screen */
+    .auth-screen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .login-box {
+      background: white;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .login-box h1 {
+      margin-bottom: 30px;
+      font-size: 24px;
+      color: #333;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #555;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn:hover {
+      background: #5568d3;
+    }
+
+    .btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .error-message {
+      background: #fee;
+      border: 1px solid #fcc;
+      color: #c33;
+      padding: 12px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+    /* Dashboard Screen */
+    .dashboard-screen {
+      display: none;
+    }
+
+    .header {
+      background: white;
+      padding: 20px;
+      border-bottom: 1px solid #ddd;
+      margin-bottom: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header h1 {
+      font-size: 24px;
+      color: #333;
+    }
+
+    .logout-btn {
+      background: #e74c3c;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      border: none;
+      color: white;
+      font-weight: 600;
+    }
+
+    .logout-btn:hover {
+      background: #c0392b;
+    }
+
+    .search-section {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .search-box {
+      display: flex;
+      gap: 10px;
+    }
+
+    .search-box input {
+      flex: 1;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+
+    .search-box button {
+      padding: 12px 24px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .search-box button:hover {
+      background: #5568d3;
+    }
+
+    /* Results Table */
+    .results-section {
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .results-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .results-table th {
+      background: #f9f9f9;
+      padding: 16px;
+      text-align: left;
+      font-weight: 600;
+      border-bottom: 2px solid #ddd;
+      color: #555;
+    }
+
+    .results-table td {
+      padding: 16px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .results-table tbody tr {
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .results-table tbody tr:hover {
+      background: #f9f9f9;
+    }
+
+    .risk-badge {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 12px;
+      display: inline-block;
+    }
+
+    .risk-low {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .risk-medium {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .risk-high {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .no-results {
+      padding: 40px;
+      text-align: center;
+      color: #999;
+    }
+
+    /* Detail Panel */
+    .detail-panel {
+      position: fixed;
+      right: -500px;
+      top: 0;
+      width: 500px;
+      height: 100vh;
+      background: white;
+      box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+      overflow-y: auto;
+      transition: right 0.3s ease;
+      z-index: 1000;
+    }
+
+    .detail-panel.open {
+      right: 0;
+    }
+
+    .detail-header {
+      background: #667eea;
+      color: white;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .detail-header button {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    .detail-body {
+      padding: 20px;
+    }
+
+    .detail-field {
+      margin-bottom: 20px;
+    }
+
+    .detail-field label {
+      font-weight: 600;
+      color: #667eea;
+      display: block;
+      margin-bottom: 6px;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    .detail-field value {
+      display: block;
+      color: #333;
+      font-size: 16px;
+    }
+
+    .generate-insight-btn {
+      width: 100%;
+      padding: 12px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+
+    .generate-insight-btn:hover:not(:disabled) {
+      background: #5568d3;
+    }
+
+    .generate-insight-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    /* Insight Card */
+    .insight-card {
+      background: #f0f4ff;
+      border: 1px solid #d4ddff;
+      border-radius: 6px;
+      padding: 16px;
+      margin-top: 20px;
+      display: none;
+    }
+
+    .insight-card.show {
+      display: block;
+    }
+
+    .insight-card h4 {
+      color: #667eea;
+      margin-bottom: 10px;
+      font-size: 14px;
+      text-transform: uppercase;
+    }
+
+    .insight-card p {
+      color: #333;
+      line-height: 1.6;
+    }
+
+    .insight-error {
+      background: #fee;
+      border: 1px solid #fcc;
+      color: #c33;
+      padding: 12px;
+      border-radius: 4px;
+      display: none;
+      margin-top: 10px;
+    }
+
+    .insight-error.show {
+      display: block;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid #667eea;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-right: 8px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .insight-loading {
+      display: none;
+      color: #667eea;
+    }
+
+    .insight-loading.show {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <!-- Authentication Screen -->
+  <div id="authScreen" class="auth-screen">
+    <div class="login-box">
+      <h1>D&B Intelligence Platform</h1>
+      <div id="loginError" class="error-message"></div>
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" required>
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required>
+        </div>
+        <button type="submit" class="btn">Sign In</button>
+      </form>
+      <p style="margin-top: 20px; text-align: center; color: #999; font-size: 12px;">
+        Demo credentials: qa_user / test123
+      </p>
+    </div>
+  </div>
+
+  <!-- Dashboard Screen -->
+  <div id="dashboardScreen" class="dashboard-screen">
+    <div class="header">
+      <h1>Company Intelligence Dashboard</h1>
+      <button id="logoutBtn" class="logout-btn">Logout</button>
+    </div>
+
+    <div class="container">
+      <div class="search-section">
+        <div class="search-box">
+          <input type="text" id="searchInput" placeholder="Search by company name or industry...">
+          <button id="searchBtn">Search</button>
+        </div>
+      </div>
+
+      <div id="resultsSection" class="results-section">
+        <table class="results-table">
+          <thead>
+            <tr>
+              <th>Company Name</th>
+              <th>Industry</th>
+              <th>Risk Level</th>
+              <th>Credit Score</th>
+            </tr>
+          </thead>
+          <tbody id="resultsBody">
+            <tr><td colspan="4" class="no-results">Enter a search to see results</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Detail Panel -->
+    <div id="detailPanel" class="detail-panel">
+      <div class="detail-header">
+        <h2 id="detailCompanyName">Company Details</h2>
+        <button id="closeDetailBtn">&times;</button>
+      </div>
+      <div class="detail-body">
+        <div class="detail-field">
+          <label>Company Name</label>
+          <value id="detailName">-</value>
+        </div>
+        <div class="detail-field">
+          <label>DUNS Number</label>
+          <value id="detailDuns">-</value>
+        </div>
+        <div class="detail-field">
+          <label>Address</label>
+          <value id="detailAddress">-</value>
+        </div>
+        <div class="detail-field">
+          <label>Industry</label>
+          <value id="detailIndustry">-</value>
+        </div>
+        <div class="detail-field">
+          <label>Employees</label>
+          <value id="detailEmployees">-</value>
+        </div>
+        <div class="detail-field">
+          <label>Annual Revenue</label>
+          <value id="detailRevenue">-</value>
+        </div>
+        <div class="detail-field">
+          <label>Credit Score</label>
+          <value id="detailCreditScore">-</value>
+        </div>
+        <div class="detail-field">
+          <label>Risk Level</label>
+          <value id="detailRiskLevel">-</value>
+        </div>
+        <div class="detail-field">
+          <label>Founded</label>
+          <value id="detailFounded">-</value>
+        </div>
+        <div class="detail-field">
+          <label>Description</label>
+          <value id="detailDescription">-</value>
+        </div>
+
+        <button id="generateInsightBtn" class="generate-insight-btn">Generate AI Insight</button>
+
+        <div class="insight-loading" id="insightLoading">
+          <div class="spinner"></div>
+          Generating insight...
+        </div>
+
+        <div class="insight-card" id="insightCard">
+          <h4>Business Intelligence Insight</h4>
+          <p id="insightText"></p>
+        </div>
+
+        <div class="insight-error" id="insightError"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let token = null;
+    let currentCompany = null;
+
+    // Login handler
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const errorDiv = document.getElementById('loginError');
+
+      try {
+        const response = await fetch('/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          token = data.token;
+          showDashboard();
+        } else {
+          errorDiv.textContent = 'Invalid credentials';
+          errorDiv.classList.add('show');
+        }
+      } catch (err) {
+        errorDiv.textContent = 'Login failed: ' + err.message;
+        errorDiv.classList.add('show');
+      }
+    });
+
+    // Logout handler
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      token = null;
+      document.getElementById('authScreen').style.display = 'flex';
+      document.getElementById('dashboardScreen').style.display = 'none';
+      document.getElementById('loginForm').reset();
+    });
+
+    // Search handler
+    document.getElementById('searchBtn').addEventListener('click', search);
+    document.getElementById('searchInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') search();
+    });
+
+    async function search() {
+      const query = document.getElementById('searchInput').value;
+      if (!query) return;
+
+      try {
+        const response = await fetch(`/companies/search?q=${encodeURIComponent(query)}`);
+        const results = await response.json();
+        displayResults(results);
+      } catch (err) {
+        console.error('Search failed:', err);
+      }
+    }
+
+    function displayResults(results) {
+      const tbody = document.getElementById('resultsBody');
+      if (results.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="no-results">No results found</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = results.map((company, idx) => `
+        <tr onclick="showDetail(${idx})">
+          <td>${company.name}</td>
+          <td>${company.industry}</td>
+          <td><span class="risk-badge risk-${company.riskLevel}">${company.riskLevel}</span></td>
+          <td>${company.creditScore}</td>
+        </tr>
+      `).join('');
+    }
+
+    function showDetail(resultIndex) {
+      const tbody = document.getElementById('resultsBody');
+      const rows = tbody.querySelectorAll('tr');
+      const cells = rows[resultIndex].querySelectorAll('td');
+      const name = cells[0].textContent;
+      const company = findCompanyByName(name);
+
+      if (!company) return;
+
+      currentCompany = company;
+      document.getElementById('detailName').textContent = company.name;
+      document.getElementById('detailDuns').textContent = company.dunsNumber;
+      document.getElementById('detailAddress').textContent = `${company.address}, ${company.city}, ${company.state}`;
+      document.getElementById('detailIndustry').textContent = company.industry;
+      document.getElementById('detailEmployees').textContent = company.employeeCount.toLocaleString();
+      document.getElementById('detailRevenue').textContent = company.annualRevenue > 0
+        ? '$' + (company.annualRevenue / 1000000).toFixed(1) + 'M'
+        : 'Pre-revenue';
+      document.getElementById('detailCreditScore').textContent = company.creditScore;
+      document.getElementById('detailRiskLevel').textContent = company.riskLevel;
+      document.getElementById('detailFounded').textContent = company.founded;
+      document.getElementById('detailDescription').textContent = company.description;
+      document.getElementById('detailCompanyName').textContent = company.name;
+
+      resetInsightUI();
+      document.getElementById('detailPanel').classList.add('open');
+    }
+
+    function findCompanyByName(name) {
+      // This would need to call the API or keep data in memory
+      // For now, we'll search through what we know
+      return null;
+    }
+
+    document.getElementById('closeDetailBtn').addEventListener('click', () => {
+      document.getElementById('detailPanel').classList.remove('open');
+    });
+
+    // Generate insight handler
+    document.getElementById('generateInsightBtn').addEventListener('click', generateInsight);
+
+    async function generateInsight() {
+      if (!currentCompany || !token) return;
+
+      const btn = document.getElementById('generateInsightBtn');
+      const loading = document.getElementById('insightLoading');
+      const card = document.getElementById('insightCard');
+      const error = document.getElementById('insightError');
+
+      btn.disabled = true;
+      loading.classList.add('show');
+      card.classList.remove('show');
+      error.classList.remove('show');
+
+      try {
+        const response = await fetch(`/companies/${currentCompany.dunsNumber}/insights`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ dunsNumber: currentCompany.dunsNumber })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          document.getElementById('insightText').textContent = data.insight;
+          card.classList.add('show');
+        } else {
+          const data = await response.json();
+          error.textContent = data.error || 'Failed to generate insight';
+          error.classList.add('show');
+        }
+      } catch (err) {
+        error.textContent = 'Error: ' + err.message;
+        error.classList.add('show');
+      } finally {
+        btn.disabled = false;
+        loading.classList.remove('show');
+      }
+    }
+
+    function resetInsightUI() {
+      document.getElementById('insightLoading').classList.remove('show');
+      document.getElementById('insightCard').classList.remove('show');
+      document.getElementById('insightError').classList.remove('show');
+      document.getElementById('generateInsightBtn').disabled = false;
+    }
+
+    function showDashboard() {
+      document.getElementById('authScreen').style.display = 'none';
+      document.getElementById('dashboardScreen').style.display = 'block';
+    }
+  </script>
+</body>
+</html>

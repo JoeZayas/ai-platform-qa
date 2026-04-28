@@ -1,0 +1,16 @@
+{
+  "name": "ai-platform-qa-tests",
+  "version": "1.0.0",
+  "description": "Test suite for ai-platform-qa",
+  "scripts": {
+    "test:ui": "pytest playwright/tests/ui -v --tb=short",
+    "test:api": "pytest playwright/tests/api -v --tb=short",
+    "test:ui:headed": "pytest playwright/tests/ui -v --headed",
+    "test:agents": "jest agent-tests",
+    "test:evals": "python langsmith-evals/run-evals.py",
+    "test:redteam": "python langsmith-evals/red-team.py"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}

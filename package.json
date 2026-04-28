@@ -1,0 +1,26 @@
+{
+  "name": "ai-platform-qa",
+  "version": "1.0.0",
+  "description": "Production-quality QA testing ecosystem for D&B-style AI platform interview preparation",
+  "private": true,
+  "scripts": {
+    "install:all": "npm install && cd app && npm install && cd ../agent && npm install && cd ../tests && npm install",
+    "dev": "npm run dev -w app",
+    "start": "npm start -w app",
+    "test:ui": "npm run test:ui -w tests",
+    "test:api": "npm run test:api -w tests",
+    "test:agents": "npm run test:agents -w tests",
+    "test:evals": "npm run test:evals -w tests",
+    "test:redteam": "npm run test:redteam -w tests",
+    "test:all": "npm run test:api -w tests && npm run test:agents -w tests && npm run test:ui -w tests && npm run test:evals -w tests",
+    "lint": "eslint app/src agent/src tests/playwright tests/agent-tests"
+  },
+  "workspaces": [
+    "app",
+    "agent",
+    "tests"
+  ],
+  "devDependencies": {
+    "eslint": "^8.56.0"
+  }
+}
