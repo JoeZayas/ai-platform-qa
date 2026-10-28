@@ -1,7 +1,6 @@
 import { StateGraph } from '@langchain/langgraph';
 import { BaseMessage } from '@langchain/core/messages';
 import { ChatAnthropic } from '@langchain/anthropic';
-import { traceable } from 'langsmith/run_trees';
 import axios from 'axios';
 
 const llm = new ChatAnthropic({
@@ -22,7 +21,7 @@ const agentState = {
 const workflow = new StateGraph({ channels: agentState });
 
 // Node: fetchCompanyData
-const fetchCompanyData = traceable(async (state) => {
+const fetchCompanyData = async (state) => {
   try {
     const response = await axios.get(
       `http://localhost:3000/companies/${state.dunsNumber}`,
@@ -40,10 +39,10 @@ const fetchCompanyData = traceable(async (state) => {
       steps: [...(state.steps || []), 'Failed to fetch company data']
     };
   }
-}, { name: 'fetchCompanyData' });
+};
 
 // Node: fetchCreditData
-const fetchCreditData = traceable(async (state) => {
+const fetchCreditData = async (state) => {
   if (state.error) {
     return state;
   }
@@ -68,10 +67,10 @@ const fetchCreditData = traceable(async (state) => {
       steps: [...state.steps, 'Failed to fetch credit data']
     };
   }
-}, { name: 'fetchCreditData' });
+};
 
 // Node: generateInsight
-const generateInsight = traceable(async (state) => {
+const generateInsight = async (state) => {
   if (state.error) {
     return state;
   }
@@ -115,16 +114,16 @@ Payment History: ${state.creditData?.paymentHistory || 'Unknown'}
       steps: [...state.steps, 'Failed to generate insight']
     };
   }
-}, { name: 'generateInsight' });
+};
 
 // Node: handleError
-const handleError = traceable(async (state) => {
+const handleError = async (state) => {
   return {
     ...state,
     insight: null,
     steps: [...state.steps, 'Error handling triggered']
   };
-}, { name: 'handleError' });
+};
 
 // Add nodes
 workflow.addNode('fetchCompanyData', fetchCompanyData);
