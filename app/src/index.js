@@ -15,10 +15,10 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../public')));
 
-// BUG-004: Rate limiter set too aggressively (3 requests/min)
+// Rate limiter (increased from 3 to 100 for testing)
 const limiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 3,
+  max: 100,
   message: 'Too many requests from this IP'
 });
 app.use('/companies/', limiter);
